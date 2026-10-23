@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+    <meta name="theme-color" content="#060912" />
+    <title>Apex Velocity</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;800;900&family=Manrope:wght@400;500;600;700;800&family=Barlow+Condensed:ital,wght@0,700;0,800;0,900;1,800;1,900&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div id="stage"></div>
+    <div id="ui"></div>
+    <div id="fade"></div>
+    <div id="wipe"><div class="p p1"></div><div class="p p2"></div><div class="p p3"></div></div>
+    <script>
+      // The source entry is TypeScript and needs Vite (npm run dev). When this page is opened through a
+      // plain static server (e.g. VS Code Live Server) the module can't load, so fall back to the
+      // pre-built game in dist/. Never redirect from inside dist/ itself.
+      (function () {
+        var done = false;
+        window.__avFallback = function () {
+          if (done || window.__avStarted || location.pathname.indexOf('/dist/') !== -1) return;
+          done = true;
+          fetch('dist/index.html', { method: 'HEAD', cache: 'no-store' })
+            .then(function (r) {
+              if (r.ok) location.replace('dist/index.html');
+              else throw new Error('no build');
+            })
+            .catch(function () {
+              document.getElementById('ui').innerHTML =
+                '<div style="position:fixed;inset:0;display:grid;place-items:center;background:#0b0c10;color:#f7f7f4;font:16px Barlow,Arial,sans-serif;text-align:center;line-height:1.6;pointer-events:auto">' +
+                '<div><b style="font-size:22px;color:#E4202C">APEX VELOCITY needs to be built first</b><br>' +
+                'In a terminal in this folder run <code>npm install</code> then <code>npm run dev</code> and open the URL it prints,<br>' +
+                'or run <code>npm run build</code> once and reload this page.</div></div>';
+            });
+        };
+        setTimeout(window.__avFallback, 6000);
+      })();
+    </script>
+    <script type="module" src="/src/main.ts" onerror="__avFallback()"></script>
+  </body>
+</html>
