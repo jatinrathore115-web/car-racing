@@ -18,31 +18,34 @@
     <div id="ui"></div>
     <div id="fade"></div>
     <div id="wipe"><div class="p p1"></div><div class="p p2"></div><div class="p p3"></div></div>
+    <!-- source-fallback:start (removed from production builds) -->
     <script>
-      // The source entry is TypeScript and needs Vite (npm run dev). When this page is opened through a
-      // plain static server (e.g. VS Code Live Server) the module can't load, so fall back to the
-      // pre-built game in dist/. Never redirect from inside dist/ itself.
-      (function () {
-        var done = false;
-        window.__avFallback = function () {
-          if (done || window.__avStarted || location.pathname.indexOf('/dist/') !== -1) return;
-          done = true;
-          fetch('dist/index.html', { method: 'HEAD', cache: 'no-store' })
-            .then(function (r) {
-              if (r.ok) location.replace('dist/index.html');
-              else throw new Error('no build');
-            })
-            .catch(function () {
-              document.getElementById('ui').innerHTML =
-                '<div style="position:fixed;inset:0;display:grid;place-items:center;background:#0b0c10;color:#f7f7f4;font:16px Barlow,Arial,sans-serif;text-align:center;line-height:1.6;pointer-events:auto">' +
-                '<div><b style="font-size:22px;color:#E4202C">APEX VELOCITY needs to be built first</b><br>' +
-                'In a terminal in this folder run <code>npm install</code> then <code>npm run dev</code> and open the URL it prints,<br>' +
-                'or run <code>npm run build</code> once and reload this page.</div></div>';
-            });
+      // The source entry is TypeScript and only runs through Vite (npm run dev). If this page is opened
+      // any other way (VS Code Live Server, double-clicking index.html...), the module fails to load and
+      // we jump to the pre-built game in dist/, which runs anywhere, including file://.
+      window.__avFallback = function () {
+        if (window.__avStarted || window.__avFellBack) return;
+        window.__avFellBack = true;
+        var go = function () {
+          location.replace('dist/index.html');
         };
-        setTimeout(window.__avFallback, 6000);
-      })();
+        var explain = function () {
+          document.getElementById('ui').innerHTML =
+            '<div style="position:fixed;inset:0;display:grid;place-items:center;background:#060912;color:#f5f7fc;font:16px Manrope,Arial,sans-serif;text-align:center;line-height:1.7;pointer-events:auto">' +
+            '<div><b style="font-size:22px">APEX VELOCITY isn’t built yet</b><br>' +
+            'Open a terminal in this folder and run <code>npm install</code> then <code>npm run dev</code>,<br>' +
+            'or run <code>npm run build</code> once and reload this page.</div></div>';
+        };
+        // file:// cannot be probed with fetch, so go straight to the build there.
+        if (location.protocol === 'file:') return go();
+        fetch('dist/index.html', { method: 'HEAD', cache: 'no-store' })
+          .then(function (r) {
+            r.ok ? go() : explain();
+          })
+          .catch(go);
+      };
     </script>
+    <!-- source-fallback:end -->
     <script type="module" src="/src/main.ts" onerror="__avFallback()"></script>
   </body>
 </html>
